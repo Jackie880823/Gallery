@@ -14,17 +14,39 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    signingConfigs {
+        debug {
+            keyAlias signature.debug_key_alias
+            keyPassword signature.debug_key_password
+            storeFile file(signature.debug_store_file)
+            storePassword signature.debug_store_password
+        }
+        release {
+            keyAlias signature.release_key_alias
+            keyPassword signature.release_key_password
+            storeFile file(signature.release_store_file)
+            storePassword signature.release_store_password
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    dataBinding {
+        enabled = true
+    }
 }
 
 dependencies {
     implementation project(':Base')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.android.support:support-v4:26.1.0'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
 }

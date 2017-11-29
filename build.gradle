@@ -2,7 +2,7 @@
 apply from: rootProject.file('Base/dependencies.gradle')
 apply from: rootProject.file('signature/signature.gradle')
 buildscript {
-    ext.kotlin_version = '1.1.51'
+    ext.kotlin_version = '1.2.0'
     repositories {
         google()
         jcenter()
