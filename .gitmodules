@@ -1,0 +1,6 @@
+[submodule "Base"]
+	path = Base
+	url = https://gitee.com/651306761/Base.git
+[submodule "signature"]
+	path = signature
+	url = https://gitee.com/651306761/signature.git
