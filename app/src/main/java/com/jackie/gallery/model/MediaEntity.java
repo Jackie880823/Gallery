@@ -1,4 +1,4 @@
-package com.jackie.gallery.entities;
+package com.jackie.gallery.model;
 
 import android.net.Uri;
 import android.os.Parcel;
