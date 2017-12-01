@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.jackie.gallery.databinding.FragmentGalleryBinding;
+
 
 /**
  * @author Jackie
@@ -40,7 +42,7 @@ public class GalleryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        ViewDataBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_gallery, container, false);
+        FragmentGalleryBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_gallery, container, false);
         return binding.getRoot();
     }
 
