@@ -15,6 +15,7 @@ import com.madxstudio.libs.tools.CloseableUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.Comparator;
 
 import static android.content.ContentValues.TAG;
 
@@ -260,5 +261,13 @@ public class MediaEntity implements Parcelable {
     @Override
     public int hashCode() {
         return path.hashCode();
+    }
+
+    public static class Sort implements Comparator<MediaEntity> {
+
+        @Override
+        public int compare(MediaEntity o1, MediaEntity o2) {
+            return (int) (o2.getAddedDate() - o1.getAddedDate());
+        }
     }
 }

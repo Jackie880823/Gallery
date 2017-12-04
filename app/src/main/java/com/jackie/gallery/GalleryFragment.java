@@ -2,20 +2,27 @@ package com.jackie.gallery;
 
 
 import android.databinding.DataBindingUtil;
-import android.databinding.ViewDataBinding;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.jackie.gallery.databinding.FragmentGalleryBinding;
+import com.jackie.gallery.model.MediaEntity;
+import com.madxstudio.libs.tools.LogUtil;
 
 
 /**
  * @author Jackie
  */
-public class GalleryFragment extends Fragment {
+public class GalleryFragment extends Fragment implements MediaClickListener{
+    private static final String TAG = "GalleryFragment";
+    private FragmentGalleryBinding binding;
+    private GalleryAdapter adapter;
 
     public GalleryFragment() {
         // Required empty public constructor
@@ -35,15 +42,26 @@ public class GalleryFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        FragmentGalleryBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_gallery, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_gallery, container, false);
+        RecyclerView.LayoutManager manager = new GridLayoutManager(getContext(), 3);
+        binding.rec.setLayoutManager(manager);
+        adapter = new GalleryAdapter(getContext());
+        adapter.setClickListener(this);
+        binding.rec.setAdapter(adapter);
         return binding.getRoot();
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+    }
+
+    @Override
+    public void onClick(MediaEntity mediaEntity) {
+        LogUtil.d(TAG, "click item is " + mediaEntity.getContentUri());
+        // TODO: 04/12/2017 preview the is Media
+    }
 }

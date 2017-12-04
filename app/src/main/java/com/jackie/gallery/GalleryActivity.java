@@ -1,11 +1,9 @@
 package com.jackie.gallery;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.databinding.DataBindingUtil;
-import android.databinding.ViewDataBinding;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -44,6 +42,9 @@ public class GalleryActivity extends BaseActivity implements NavigationView.OnNa
         navBinding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.nav_header_gallery, null,
                 false);
         navigationView.addHeaderView(navBinding.getRoot());
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().add(R.id.fragment, GalleryFragment.newInstance()).commit();
+        }
     }
 
     @Override

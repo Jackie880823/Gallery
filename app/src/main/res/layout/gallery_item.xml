@@ -1,14 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
     <data>
+
         <variable
             name="media"
-            type="com.jackie.gallery.model.MediaEntity" />
+            type="com.jackie.gallery.model.MediaEntity"/>
+
+        <variable
+            name="click"
+            type="com.jackie.gallery.MediaClickListener"/>
+
+        <variable
+            name="select"
+            type="com.jackie.gallery.MediaSelectListener"/>
     </data>
+
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/shadow"
+        android:padding="@dimen/stroke_size">
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:layout_centerInParent="true"
+            android:onClick="@{() -> click.onClick(media)}"/>
+
+        <CheckBox
+            android:id="@+id/checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:checked="@{media.select}"
+            android:onCheckedChanged="@{(cb, isChecked) -> select.select(media, isChecked)}"/>
     </RelativeLayout>
 
 </layout>
