@@ -1,6 +1,8 @@
 package com.jackie.gallery;
 
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,8 +15,10 @@ import android.view.ViewGroup;
 
 import com.jackie.gallery.databinding.FragmentGalleryBinding;
 import com.jackie.gallery.model.MediaEntity;
+import com.jackie.gallery.viewmodel.GalleryListViewModel;
 import com.madxstudio.libs.tools.LogUtil;
 
+import java.util.List;
 
 /**
  * @author Jackie
@@ -56,7 +60,13 @@ public class GalleryFragment extends Fragment implements MediaClickListener{
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
+        GalleryListViewModel viewModel = ViewModelProviders.of(this).get(GalleryListViewModel.class);
+        viewModel.getGalleryData(getActivity(), true).observe(this, new Observer<List<MediaEntity>>() {
+            @Override
+            public void onChanged(@Nullable List<MediaEntity> mediaEntities) {
+                adapter.setData(mediaEntities);
+            }
+        });
     }
 
     @Override

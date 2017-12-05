@@ -1,7 +1,5 @@
 package com.jackie.gallery.model;
 
-import android.app.Application;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +11,7 @@ import android.support.v4.content.Loader;
 import android.text.TextUtils;
 
 import com.jackie.gallery.R;
+import com.madxstudio.libs.BaseApp;
 import com.madxstudio.libs.tools.CloseableUtils;
 import com.madxstudio.libs.tools.DeviceUtils;
 import com.madxstudio.libs.tools.LogUtil;
@@ -41,7 +40,6 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
      */
     static final int VIDEO_LOADER = 20000;
     private static final String TAG = "MediaLoader";
-    private Context context;
     private List<MediaEntity> entities = new ArrayList<>();
     private static MediaLoader instance;
     private LoaderListener loaderListener;
@@ -49,20 +47,20 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
     private Map<String, List<MediaEntity>> mediaMap;
     private String bucket;
 
-    public static MediaLoader get(Context context) {
-        if (instance == null || instance.context != context) {
-            instance = new MediaLoader(context);
+    public static MediaLoader get() {
+        if (instance == null ) {
+            instance = new MediaLoader();
         }
         return instance;
     }
 
-    private MediaLoader(Context context) {
-        this.context = context;
+    private MediaLoader() {
         mediaMap = new HashMap<>();
-        String all = context.getString(R.string.media_bucket_all);
+        String all = BaseApp.getInstance().getString(R.string.media_bucket_all);
+        bucket = all;
         mediaMap.put(all, entities);
         if (bucketListener != null) {
-            bucketListener.addBucket(all);
+            bucketListener.onAddBucket(all);
         }
     }
 
@@ -70,9 +68,12 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
             case IMAGE_LOADER:
-                return new CursorLoader(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
+                return new CursorLoader(BaseApp.getInstance(), MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null,
+                        null, null,
+                        null);
             case VIDEO_LOADER:
-                return new CursorLoader(context, MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
+                return new CursorLoader(BaseApp.getInstance(), MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null,
+                        null, null, null);
             default:
                 return null;
         }
@@ -134,7 +135,7 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
             addedDate = data.getLong(addedDateColumnIndex);
             contentUri = Uri.parse(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString() + File.separator + id);
 
-            if (!TextUtils.isEmpty(path) && !path.contains(DeviceUtils.getDiskCacheDir(context))) {
+            if (!TextUtils.isEmpty(path) && !path.contains(DeviceUtils.getDiskCacheDir(BaseApp.getInstance()))) {
                 LogUtil.d(TAG, "query a images: " + contentUri);
                 MediaEntity mediaData = new MediaEntity(contentUri, path, MediaEntity.TYPE_IMAGE, 0);
                 mediaData.setId(id);
@@ -144,7 +145,7 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
                     list = new ArrayList<>();
                     mediaMap.put(bucket, list);
                     if (bucketListener != null) {
-                        bucketListener.addBucket(bucket);
+                        bucketListener.onAddBucket(bucket);
                     }
                 }
                 list.add(mediaData);
@@ -162,10 +163,10 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
             return new ArrayList<>();
         }
         List<MediaEntity> result = new ArrayList<>(data.getCount());
-        String bucket = context.getString(R.string.media_bucket_videos);
+        String bucket = BaseApp.getInstance().getString(R.string.media_bucket_videos);
         mediaMap.put(bucket, result);
         if (bucketListener != null) {
-            bucketListener.addBucket(bucket);
+            bucketListener.onAddBucket(bucket);
         }
 
         int uriColumnIndex = data.getColumnIndex(MediaStore.Video.VideoColumns._ID);
@@ -199,8 +200,7 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
         return result;
     }
 
-    public void setLoaderListener(String bucket, @NonNull LoaderListener loaderListener) {
-        this.loaderListener = loaderListener;
+    public void loadBucket(String bucket) {
         this.bucket = bucket;
         List<MediaEntity> list = mediaMap.get(this.bucket);
         if (list != null) {
@@ -208,14 +208,13 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
         }
     }
 
-    public void removeLoaderListener() {
-        loaderListener = null;
+    public void setLoaderListener(LoaderListener loaderListener) {
+        this.loaderListener = loaderListener;
+        loadBucket(bucket);
     }
 
-    public void clear(){
-        instance = null;
-        entities.clear();
-        mediaMap.clear();
+    public void removeLoaderListener() {
+        loaderListener = null;
     }
 
     /**
@@ -224,5 +223,8 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
      */
     public void setBucketListener(@NonNull BucketListener bucketListener) {
         this.bucketListener = bucketListener;
+        for (String s : mediaMap.keySet()) {
+            bucketListener.onAddBucket(s);
+        }
     }
 }

@@ -8,5 +8,5 @@ package com.jackie.gallery.model;
  */
 
 public interface BucketListener {
-    void addBucket(String bucket);
+    void onAddBucket(String bucket);
 }

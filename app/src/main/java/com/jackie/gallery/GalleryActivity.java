@@ -1,9 +1,10 @@
 package com.jackie.gallery;
 
-import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -13,12 +14,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.jackie.gallery.databinding.NavHeaderGalleryBinding;
+import com.jackie.gallery.viewmodel.GalleryViewMode;
 import com.madxstudio.libs.base.BaseActivity;
+import com.madxstudio.libs.tools.LogUtil;
 
 /**
  * @author Jackie
  */
 public class GalleryActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
+    private static final String TAG = "GalleryActivity";
 
     private NavHeaderGalleryBinding navBinding;
 
@@ -45,6 +49,13 @@ public class GalleryActivity extends BaseActivity implements NavigationView.OnNa
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().add(R.id.fragment, GalleryFragment.newInstance()).commit();
         }
+        GalleryViewMode viewMode = ViewModelProviders.of(this).get(GalleryViewMode.class);
+        viewMode.getData().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                LogUtil.d(TAG, "changed bucket is " + s);
+            }
+        });
     }
 
     @Override

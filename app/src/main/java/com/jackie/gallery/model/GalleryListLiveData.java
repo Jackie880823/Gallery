@@ -5,7 +5,6 @@ import android.support.annotation.MainThread;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,23 +17,19 @@ import java.util.List;
 public class GalleryListLiveData extends LiveData<List<MediaEntity>> implements LoaderListener{
     private static final String TAG = "ImageLiveData";
     private static GalleryListLiveData instance;
-    private final LoaderManager manager;
-    private FragmentActivity activity;
+    private LoaderManager manager;
     private boolean needVideo;
-    private List<MediaEntity> entities = new ArrayList<>();
-    private final MediaLoader mediaLoader;
+    private MediaLoader mediaLoader;
 
-    private GalleryListLiveData(FragmentActivity activity, MediaLoader mediaLoader, boolean needVideo) {
-        this.activity = activity;
-        this.needVideo = needVideo;
-        this.mediaLoader = mediaLoader;
-        manager = activity.getSupportLoaderManager();
+    private GalleryListLiveData() {
+        mediaLoader = MediaLoader.get();
+        mediaLoader.setLoaderListener(this);
     }
 
     @MainThread
-    public static GalleryListLiveData get(FragmentActivity activity, MediaLoader mediaLoader, boolean needVideo) {
+    public static GalleryListLiveData get() {
         if (instance == null) {
-            instance = new GalleryListLiveData(activity, mediaLoader, needVideo);
+            instance = new GalleryListLiveData();
         }
         return instance;
     }
@@ -59,6 +54,18 @@ public class GalleryListLiveData extends LiveData<List<MediaEntity>> implements 
 
     @Override
     public void onLoad(List<MediaEntity> data) {
-        setValue(data);
+        postValue(data);
+    }
+
+    public void setActivity(FragmentActivity activity) {
+        manager = activity.getSupportLoaderManager();
+    }
+
+    public void setNeedVideo(boolean needVideo) {
+        this.needVideo = needVideo;
+    }
+
+    public void loadBucket(String bucket) {
+        mediaLoader.loadBucket(bucket);
     }
 }
