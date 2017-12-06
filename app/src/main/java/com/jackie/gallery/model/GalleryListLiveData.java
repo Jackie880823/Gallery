@@ -14,7 +14,7 @@ import java.util.List;
  * @version 1.0
  */
 
-public class GalleryListLiveData extends LiveData<List<MediaEntity>> implements LoaderListener{
+public class GalleryListLiveData extends LiveData<List<MediaEntity>> implements LoaderListener {
     private static final String TAG = "ImageLiveData";
     private static GalleryListLiveData instance;
     private LoaderManager manager;
@@ -23,7 +23,6 @@ public class GalleryListLiveData extends LiveData<List<MediaEntity>> implements 
 
     private GalleryListLiveData() {
         mediaLoader = MediaLoader.get();
-        mediaLoader.setLoaderListener(this);
     }
 
     @MainThread
@@ -37,6 +36,7 @@ public class GalleryListLiveData extends LiveData<List<MediaEntity>> implements 
     @Override
     protected void onActive() {
         super.onActive();
+        mediaLoader.setLoaderListener(this);
         manager.restartLoader(MediaLoader.IMAGE_LOADER, null, mediaLoader);
         if (needVideo) {
             manager.restartLoader(MediaLoader.VIDEO_LOADER, null, mediaLoader);
