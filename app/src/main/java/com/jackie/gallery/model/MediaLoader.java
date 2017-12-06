@@ -26,6 +26,7 @@ import java.util.Map;
 /**
  * Created on 04/12/2017.
  * 用于解析从{@link LoaderManager}加载到的图片或视频的{@link Cursor}。这个类为
+ *
  * @author Jackie
  * @version 1.0
  */
@@ -40,28 +41,25 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
      */
     static final int VIDEO_LOADER = 20000;
     private static final String TAG = "MediaLoader";
-    private List<MediaEntity> entities = new ArrayList<>();
     private static MediaLoader instance;
+    private List<MediaEntity> entities = new ArrayList<>();
     private LoaderListener loaderListener;
     private BucketListener bucketListener;
     private Map<String, List<MediaEntity>> mediaMap;
     private String bucket;
-
-    public static MediaLoader get() {
-        if (instance == null ) {
-            instance = new MediaLoader();
-        }
-        return instance;
-    }
 
     private MediaLoader() {
         mediaMap = new HashMap<>();
         String all = BaseApp.getInstance().getString(R.string.media_bucket_all);
         bucket = all;
         mediaMap.put(all, entities);
-        if (bucketListener != null) {
-            bucketListener.onAddBucket(all);
+    }
+
+    public static MediaLoader get() {
+        if (instance == null) {
+            instance = new MediaLoader();
         }
+        return instance;
     }
 
     @Override
@@ -102,6 +100,9 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
         List<MediaEntity> list = mediaMap.get(bucket);
         if (loaderListener != null && list != null) {
             loaderListener.onLoad(list);
+        }
+        if (bucketListener != null) {
+            finishBuckets();
         }
     }
 
@@ -144,9 +145,6 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
                 if (!mediaMap.keySet().contains(bucket)) {
                     list = new ArrayList<>();
                     mediaMap.put(bucket, list);
-                    if (bucketListener != null) {
-                        bucketListener.onAddBucket(bucket);
-                    }
                 }
                 list.add(mediaData);
             }
@@ -165,9 +163,6 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
         List<MediaEntity> result = new ArrayList<>(data.getCount());
         String bucket = BaseApp.getInstance().getString(R.string.media_bucket_videos);
         mediaMap.put(bucket, result);
-        if (bucketListener != null) {
-            bucketListener.onAddBucket(bucket);
-        }
 
         int uriColumnIndex = data.getColumnIndex(MediaStore.Video.VideoColumns._ID);
         int pathColumnIndex = data.getColumnIndex(MediaStore.Video.VideoColumns.DATA);
@@ -219,12 +214,20 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 
     /**
      * 设置添加了目录的监听
+     *
      * @param bucketListener
      */
     public void setBucketListener(@NonNull BucketListener bucketListener) {
         this.bucketListener = bucketListener;
+        finishBuckets();
+    }
+
+    private void finishBuckets() {
         for (String s : mediaMap.keySet()) {
-            bucketListener.onAddBucket(s);
+            List<MediaEntity> entities = mediaMap.get(s);
+            if (!entities.isEmpty()) {
+                bucketListener.onAddBucket(new Bucket(s, entities.get(0).getContentUri()));
+            }
         }
     }
 }

@@ -9,11 +9,12 @@ import android.arch.lifecycle.LiveData;
  * @version 1.0
  */
 
-public class GalleryLiveData extends LiveData<String> implements BucketListener {
-    public GalleryLiveData() {}
+public class GalleryLiveData extends LiveData<Bucket> implements BucketListener {
+    public GalleryLiveData() {
+    }
 
     @Override
-    public void onAddBucket(String bucket) {
+    public void onAddBucket(Bucket bucket) {
         setValue(bucket);
     }
 
