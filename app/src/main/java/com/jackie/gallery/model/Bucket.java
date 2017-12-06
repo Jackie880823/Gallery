@@ -12,6 +12,7 @@ import android.net.Uri;
 public class Bucket {
     private String bucket;
     private Uri uri;
+    private boolean selected;
 
     public Bucket(String bucket, Uri uri) {
         this.bucket = bucket;
@@ -32,6 +33,14 @@ public class Bucket {
 
     public void setUri(Uri uri) {
         this.uri = uri;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 
     @Override

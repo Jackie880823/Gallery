@@ -4,6 +4,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.support.annotation.NonNull;
 
+import com.jackie.gallery.model.Bucket;
 import com.jackie.gallery.model.GalleryLiveData;
 
 /**
@@ -24,5 +25,9 @@ public class GalleryViewMode extends AndroidViewModel {
             liveData = new GalleryLiveData();
         }
         return liveData;
+    }
+
+    public void selectBucket(Bucket bucket) {
+        liveData.loadBucketGallery(bucket);
     }
 }

@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created on 04/12/2017.
@@ -46,12 +47,12 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
     private LoaderListener loaderListener;
     private BucketListener bucketListener;
     private Map<String, List<MediaEntity>> mediaMap;
-    private String bucket;
+    private String bucketName;
 
     private MediaLoader() {
         mediaMap = new HashMap<>();
         String all = BaseApp.getInstance().getString(R.string.media_bucket_all);
-        bucket = all;
+        bucketName = all;
         mediaMap.put(all, entities);
     }
 
@@ -94,10 +95,10 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
             default:
                 entities.clear();
         }
-        if (TextUtils.isEmpty(bucket)) {
+        if (TextUtils.isEmpty(bucketName)) {
             return;
         }
-        List<MediaEntity> list = mediaMap.get(bucket);
+        List<MediaEntity> list = mediaMap.get(bucketName);
         if (loaderListener != null && list != null) {
             loaderListener.onLoad(list);
         }
@@ -195,9 +196,9 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
         return result;
     }
 
-    public void loadBucket(String bucket) {
-        this.bucket = bucket;
-        List<MediaEntity> list = mediaMap.get(this.bucket);
+    public void loadGallery(String bucket) {
+        this.bucketName = bucket;
+        List<MediaEntity> list = mediaMap.get(this.bucketName);
         if (list != null) {
             loaderListener.onLoad(list);
         }
@@ -205,7 +206,7 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public void setLoaderListener(LoaderListener loaderListener) {
         this.loaderListener = loaderListener;
-        loadBucket(bucket);
+        loadGallery(bucketName);
     }
 
     public void removeLoaderListener() {
@@ -223,11 +224,16 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
     }
 
     private void finishBuckets() {
-        for (String s : mediaMap.keySet()) {
+        Set<String> keySet = mediaMap.keySet();
+        List<Bucket> buckets = new ArrayList<>(keySet.size());
+        for (String s : keySet) {
             List<MediaEntity> entities = mediaMap.get(s);
             if (!entities.isEmpty()) {
-                bucketListener.onAddBucket(new Bucket(s, entities.get(0).getContentUri()));
+                Bucket bucket = new Bucket(s, entities.get(0).getContentUri());
+                bucket.setSelected(s.equals(bucketName));
+                buckets.add(bucket);
             }
         }
+        bucketListener.onAddBuckets(buckets);
     }
 }

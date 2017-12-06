@@ -66,6 +66,6 @@ public class GalleryListLiveData extends LiveData<List<MediaEntity>> implements 
     }
 
     public void loadBucket(String bucket) {
-        mediaLoader.loadBucket(bucket);
+        mediaLoader.loadGallery(bucket);
     }
 }

@@ -1,5 +1,7 @@
 package com.jackie.gallery.model;
 
+import java.util.List;
+
 /**
  * Created on 04/12/2017.
  *
@@ -8,5 +10,5 @@ package com.jackie.gallery.model;
  */
 
 public interface BucketListener {
-    void onAddBucket(Bucket media);
+    void onAddBuckets(List<Bucket> buckets);
 }
