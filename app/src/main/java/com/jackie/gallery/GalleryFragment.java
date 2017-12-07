@@ -61,7 +61,8 @@ public class GalleryFragment extends Fragment implements MediaClickListener{
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         GalleryListViewModel viewModel = ViewModelProviders.of(this).get(GalleryListViewModel.class);
-        viewModel.getGalleryData(getActivity(), true).observe(this, new Observer<List<MediaEntity>>() {
+        adapter.setSelectListener(viewModel.getSelectListener());
+        viewModel.getGalleryData(getActivity()).observe(this, new Observer<List<MediaEntity>>() {
             @Override
             public void onChanged(@Nullable List<MediaEntity> mediaEntities) {
                 adapter.setData(mediaEntities);
