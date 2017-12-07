@@ -37,7 +37,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
             android:checked="@{media.select}"
-            android:onCheckedChanged="@{(cb, isChecked) -> select.select(media, isChecked)}"/>
+            android:onClick="@{() -> select.select(media, !media.select)}"/>
     </RelativeLayout>
 
 </layout>
