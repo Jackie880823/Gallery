@@ -10,5 +10,5 @@ import com.jackie.gallery.model.MediaEntity;
  */
 
 public interface MediaSelectListener {
-    void select(MediaEntity mediaEntity, boolean isSelected);
+    boolean select(MediaEntity mediaEntity, boolean isSelected);
 }

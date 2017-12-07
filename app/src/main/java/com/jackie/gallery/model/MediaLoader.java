@@ -10,6 +10,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 
+import com.jackie.gallery.Constants;
 import com.jackie.gallery.R;
 import com.madxstudio.libs.BaseApp;
 import com.madxstudio.libs.tools.CloseableUtils;
@@ -44,16 +45,29 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "MediaLoader";
     private static MediaLoader instance;
     private List<MediaEntity> entities = new ArrayList<>();
+    private List<MediaEntity> selectedList = new ArrayList<>();
     private LoaderListener loaderListener;
     private BucketListener bucketListener;
     private Map<String, List<MediaEntity>> mediaMap;
     private String bucketName;
 
+    /**
+     * 单个{@link MediaEntity}大小限制
+     */
+    private long fileLimit = Long.MAX_VALUE;
+    /**
+     * 选择{@link MediaEntity}的总体大小限制
+     */
+    private long totalLimit = Long.MAX_VALUE;
+    /**
+     * 选择{@link MediaEntity}的数量限制
+     */
+    private int countLimit = Integer.MAX_VALUE;
+
+    private long currentTotal = 0L;
+
     private MediaLoader() {
-        mediaMap = new HashMap<>();
-        String all = BaseApp.getInstance().getString(R.string.media_bucket_all);
-        bucketName = all;
-        mediaMap.put(all, entities);
+        init();
     }
 
     public static MediaLoader get() {
@@ -61,6 +75,19 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
             instance = new MediaLoader();
         }
         return instance;
+    }
+
+    private void init() {
+        mediaMap = new HashMap<>();
+        String all = BaseApp.getInstance().getString(R.string.media_bucket_all);
+        bucketName = all;
+        mediaMap.put(all, entities);
+    }
+
+    public void setArgument(@NonNull Bundle argument) {
+        fileLimit = argument.getLong(Constants.EXTRACT_FILE_LIMIT, Long.MAX_VALUE);
+        totalLimit = argument.getLong(Constants.EXTRACT_TOTAL_LIMIT, Long.MAX_VALUE);
+        countLimit = argument.getInt(Constants.EXTRACT_COUNT_LIMIT, Integer.MAX_VALUE);
     }
 
     @Override
@@ -86,11 +113,9 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
         switch (loader.getId()) {
             case IMAGE_LOADER:
                 entities.addAll(loadImages(data));
-                Collections.sort(entities, new MediaEntity.Sort());
                 break;
             case VIDEO_LOADER:
                 entities.addAll(loadVideos(data));
-                Collections.sort(entities, new MediaEntity.Sort());
                 break;
             default:
                 entities.clear();
@@ -100,6 +125,7 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
         }
         List<MediaEntity> list = mediaMap.get(bucketName);
         if (loaderListener != null && list != null) {
+            Collections.sort(list, new MediaEntity.Sort());
             loaderListener.onLoad(list);
         }
         if (bucketListener != null) {
@@ -109,7 +135,10 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        mediaMap.clear();
         entities.clear();
+        selectedList.clear();
+        init();
     }
 
     /**
@@ -196,10 +225,15 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
         return result;
     }
 
+    /**
+     * 加载指定{@code bucket}目录下的media
+     * @param bucket 目录
+     */
     public void loadGallery(String bucket) {
         this.bucketName = bucket;
         List<MediaEntity> list = mediaMap.get(this.bucketName);
         if (list != null) {
+            Collections.sort(list, new MediaEntity.Sort());
             loaderListener.onLoad(list);
         }
     }
@@ -209,7 +243,7 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
         loadGallery(bucketName);
     }
 
-    public void removeLoaderListener() {
+    public void removeLoaderListener(LoaderListener loaderListener) {
         loaderListener = null;
     }
 
@@ -235,5 +269,57 @@ public class MediaLoader implements LoaderManager.LoaderCallbacks<Cursor> {
             }
         }
         bucketListener.onAddBuckets(buckets);
+    }
+
+    public boolean selectedMedia(MediaEntity mediaEntity, boolean isSelected) {
+        boolean result = false;
+        if (!isSelected) {
+            result = selectedList.remove(mediaEntity);
+            currentTotal = result ? currentTotal - mediaEntity.getFileSize() : currentTotal;
+            currentTotal = currentTotal < 0L ? 0L : currentTotal;
+        } else if (checkLimit(mediaEntity)) {
+            result = selectedList.add(mediaEntity);
+            mediaEntity.setSelect(result);
+
+            // 根据添加的结果来计算当前添加的大小
+            currentTotal = result ? currentTotal + mediaEntity.getFileSize() : currentTotal;
+        }
+        return result;
+    }
+
+    /**
+     * 检测是否超出了限制
+     * @param mediaEntity
+     * @return
+     */
+    private boolean checkLimit(MediaEntity mediaEntity) {
+        if (selectedList.size() > countLimit) { // 数量超出限制
+            return false;
+        } else if (mediaEntity.getFileSize() > fileLimit) { // 单个大小超出限制
+            return false;
+        } else if (currentTotal + mediaEntity.getFileSize() > totalLimit) { // 总的大小超出限制
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public List<MediaEntity> getSelectedList() {
+        return selectedList;
+    }
+
+    public void setSelectedList(List<Uri> uris) {
+        for (Uri uri : uris) {
+            addSelectUri(uri);
+        }
+    }
+
+    private void addSelectUri(Uri uri) {
+        MediaEntity mediaEntity = new MediaEntity();
+        mediaEntity.setContentUri(uri);
+        int indexOf = this.selectedList.indexOf(mediaEntity);
+        if (indexOf > -1)  {
+            selectedMedia(this.selectedList.get(indexOf), true);
+        }
     }
 }

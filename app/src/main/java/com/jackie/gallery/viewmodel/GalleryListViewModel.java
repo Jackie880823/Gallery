@@ -5,7 +5,9 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 
+import com.jackie.gallery.MediaSelectListener;
 import com.jackie.gallery.model.GalleryListLiveData;
+import com.jackie.gallery.model.MediaEntity;
 
 /**
  * Created on 30/11/2017.
@@ -14,22 +16,25 @@ import com.jackie.gallery.model.GalleryListLiveData;
  * @version 1.0
  */
 
-public class GalleryListViewModel extends AndroidViewModel{
-    GalleryListLiveData galleryData;
+public class GalleryListViewModel extends AndroidViewModel implements MediaSelectListener {
+    private GalleryListLiveData galleryData;
+
     public GalleryListViewModel(@NonNull Application application) {
         super(application);
+        galleryData = new GalleryListLiveData();
     }
 
-    public GalleryListLiveData getGalleryData(FragmentActivity fragmentActivity, boolean needVideo) {
-        if (galleryData == null) {
-            galleryData = GalleryListLiveData.get();
-        }
+    public GalleryListLiveData getGalleryData(FragmentActivity fragmentActivity) {
         galleryData.setActivity(fragmentActivity);
-        galleryData.setNeedVideo(needVideo);
         return galleryData;
     }
 
-    public void loadBucket(String bucket) {
-        galleryData.loadBucket(bucket);
+    public MediaSelectListener getSelectListener() {
+        return this;
+    }
+
+    @Override
+    public boolean select(MediaEntity mediaEntity, boolean isSelected) {
+        return galleryData.selectedMedia(mediaEntity, isSelected);
     }
 }

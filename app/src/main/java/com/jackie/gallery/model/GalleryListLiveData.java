@@ -1,9 +1,11 @@
 package com.jackie.gallery.model;
 
 import android.arch.lifecycle.LiveData;
-import android.support.annotation.MainThread;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
+
+import com.jackie.gallery.Constants;
 
 import java.util.List;
 
@@ -16,40 +18,24 @@ import java.util.List;
 
 public class GalleryListLiveData extends LiveData<List<MediaEntity>> implements LoaderListener {
     private static final String TAG = "ImageLiveData";
-    private static GalleryListLiveData instance;
     private LoaderManager manager;
     private boolean needVideo;
     private MediaLoader mediaLoader;
 
-    private GalleryListLiveData() {
+    public GalleryListLiveData() {
         mediaLoader = MediaLoader.get();
-    }
-
-    @MainThread
-    public static GalleryListLiveData get() {
-        if (instance == null) {
-            instance = new GalleryListLiveData();
-        }
-        return instance;
     }
 
     @Override
     protected void onActive() {
         super.onActive();
         mediaLoader.setLoaderListener(this);
-        manager.restartLoader(MediaLoader.IMAGE_LOADER, null, mediaLoader);
-        if (needVideo) {
-            manager.restartLoader(MediaLoader.VIDEO_LOADER, null, mediaLoader);
-        }
     }
 
     @Override
     protected void onInactive() {
         super.onInactive();
-        manager.destroyLoader(MediaLoader.IMAGE_LOADER);
-        if (needVideo) {
-            manager.destroyLoader(MediaLoader.VIDEO_LOADER);
-        }
+        mediaLoader.removeLoaderListener(this);
     }
 
     @Override
@@ -58,14 +44,22 @@ public class GalleryListLiveData extends LiveData<List<MediaEntity>> implements 
     }
 
     public void setActivity(FragmentActivity activity) {
-        manager = activity.getSupportLoaderManager();
+        Bundle extras = activity.getIntent().getExtras();
+        if (extras != null) {
+            needVideo = extras.getBoolean(Constants.EXTRACT_NEED_VOIDE);
+            mediaLoader.setArgument(extras);
+        }
+
+        if (manager == null) {
+            manager = activity.getSupportLoaderManager();
+            manager.restartLoader(MediaLoader.IMAGE_LOADER, null, mediaLoader);
+            if (needVideo) {
+                manager.restartLoader(MediaLoader.VIDEO_LOADER, null, mediaLoader);
+            }
+        }
     }
 
-    public void setNeedVideo(boolean needVideo) {
-        this.needVideo = needVideo;
-    }
-
-    public void loadBucket(String bucket) {
-        mediaLoader.loadGallery(bucket);
+    public boolean selectedMedia(MediaEntity mediaEntity, boolean isSelected) {
+        return mediaLoader.selectedMedia(mediaEntity, isSelected);
     }
 }

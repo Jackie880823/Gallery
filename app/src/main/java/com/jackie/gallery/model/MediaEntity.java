@@ -11,8 +11,7 @@ import android.util.Log;
 
 import com.jackie.gallery.App;
 import com.madxstudio.libs.tools.CloseableUtils;
-
-import org.jetbrains.annotations.Nullable;
+import com.madxstudio.libs.tools.DeviceUtils;
 
 import java.io.File;
 import java.util.Comparator;
@@ -132,6 +131,10 @@ public class MediaEntity implements Parcelable {
 
     public void setAddedDate(long addedDate) {
         this.addedDate = addedDate;
+    }
+
+    public long getFileSize() {
+       return DeviceUtils.getFileSize(new File(path));
     }
 
     public Uri getThumbnailUri() {
@@ -255,12 +258,12 @@ public class MediaEntity implements Parcelable {
 
         MediaEntity that = (MediaEntity) o;
 
-        return path.equals(that.path);
+        return contentUri.equals(that.contentUri);
     }
 
     @Override
     public int hashCode() {
-        return path.hashCode();
+        return contentUri.hashCode();
     }
 
     public static class Sort implements Comparator<MediaEntity> {
