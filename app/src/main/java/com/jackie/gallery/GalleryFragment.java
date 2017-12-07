@@ -1,9 +1,13 @@
 package com.jackie.gallery;
 
 
+import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.ClipData;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,17 +20,21 @@ import android.view.ViewGroup;
 import com.jackie.gallery.databinding.FragmentGalleryBinding;
 import com.jackie.gallery.model.MediaEntity;
 import com.jackie.gallery.viewmodel.GalleryListViewModel;
+import com.madxstudio.libs.tools.Constants;
 import com.madxstudio.libs.tools.LogUtil;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author Jackie
  */
-public class GalleryFragment extends Fragment implements MediaClickListener{
+public class GalleryFragment extends Fragment implements MediaClickListener {
     private static final String TAG = "GalleryFragment";
+    private static final int REQUEST_PREVIEW_CODE = 1000;
     private FragmentGalleryBinding binding;
     private GalleryAdapter adapter;
+    private GalleryListViewModel viewModel;
 
     public GalleryFragment() {
         // Required empty public constructor
@@ -46,6 +54,39 @@ public class GalleryFragment extends Fragment implements MediaClickListener{
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+
+        switch (requestCode) {
+            case REQUEST_PREVIEW_CODE:
+                initSelectedUri(data);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void initSelectedUri(Intent data) {
+        if (data == null) {
+            return;
+        }
+
+        ClipData clipData = data.getClipData();
+        if (clipData == null || clipData.getItemCount() < 1) {
+            return;
+        }
+        List<Uri> selected = new LinkedList<>();
+        for (int i = 0; i < clipData.getItemCount(); i++) {
+            Uri uri = clipData.getItemAt(i).getUri();
+            selected.add(uri);
+        }
+        viewModel.setSelectedUris(selected);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_gallery, container, false);
@@ -60,7 +101,9 @@ public class GalleryFragment extends Fragment implements MediaClickListener{
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        GalleryListViewModel viewModel = ViewModelProviders.of(this).get(GalleryListViewModel.class);
+        viewModel = ViewModelProviders.of(this).get(GalleryListViewModel.class);
+        initSelectedUri(getActivity().getIntent());
+
         adapter.setSelectListener(viewModel.getSelectListener());
         viewModel.getGalleryData(getActivity()).observe(this, new Observer<List<MediaEntity>>() {
             @Override
@@ -73,6 +116,8 @@ public class GalleryFragment extends Fragment implements MediaClickListener{
     @Override
     public void onClick(MediaEntity mediaEntity) {
         LogUtil.d(TAG, "click item is " + mediaEntity.getContentUri());
-        // TODO: 04/12/2017 preview the is Media
+        Intent intent = new Intent(getContext(), PreviewActivity.class);
+        intent.putExtra(Constants.EXTRA_ENTITY, mediaEntity);
+        startActivityForResult(intent, REQUEST_PREVIEW_CODE);
     }
 }

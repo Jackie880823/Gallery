@@ -1,22 +1,21 @@
-<layout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/translucence">
 
-    <data>
-
-        <variable
-            name="media"
-            type="com.jackie.gallery.model.MediaEntity"/>
-    </data>
-
-    <FrameLayout
+    <com.github.chrisbanes.photoview.PhotoView
+        android:id="@+id/preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.jackie.gallery.PreviewPhotoFragment">
+        android:layout_centerInParent="true"
+        android:background="@color/grey"
+        android:visibility="gone"/>
 
-        <com.github.chrisbanes.photoview.PhotoView
-            android:id="@+id/preview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </FrameLayout>
-</layout>
+    <VideoView
+        android:id="@+id/video"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
+</RelativeLayout>
