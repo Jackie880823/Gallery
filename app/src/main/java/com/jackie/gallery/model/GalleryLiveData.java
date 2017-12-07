@@ -27,9 +27,9 @@ public class GalleryLiveData extends LiveData<List<Bucket>> implements BucketLis
     @Override
     public void onAddBuckets(List<Bucket> buckets) {
         Bucket all = new Bucket(BaseApp.getInstance().getString(R.string.media_bucket_all), null);
-        Bucket video = new Bucket(BaseApp.getInstance().getString(R.string.media_bucket_videos), null);
 
         moveIndex(buckets, all, 0);
+        Bucket video = new Bucket(BaseApp.getInstance().getString(R.string.media_bucket_videos), null);
         moveIndex(buckets, video, 1);
         bucketList = buckets;
         setValue(bucketList);
@@ -40,6 +40,8 @@ public class GalleryLiveData extends LiveData<List<Bucket>> implements BucketLis
         if (position > -1) {
             item = buckets.get(position);
             buckets.remove(position);
+        } else {
+            return;
         }
 
         if (index > -1 && index <= buckets.size()) {

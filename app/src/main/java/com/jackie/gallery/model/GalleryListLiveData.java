@@ -1,12 +1,14 @@
 package com.jackie.gallery.model;
 
 import android.arch.lifecycle.LiveData;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 
 import com.jackie.gallery.Constants;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -61,5 +63,18 @@ public class GalleryListLiveData extends LiveData<List<MediaEntity>> implements 
 
     public boolean selectedMedia(MediaEntity mediaEntity, boolean isSelected) {
         return mediaLoader.selectedMedia(mediaEntity, isSelected);
+    }
+
+    public List<Uri> getSelectedUri() {
+        List<MediaEntity> selectedList = mediaLoader.getSelectedList();
+        List<Uri> uris = new ArrayList<>(selectedList.size());
+        for (MediaEntity mediaEntity : selectedList) {
+            uris.add(mediaEntity.getContentUri());
+        }
+        return uris;
+    }
+
+    public void setSelectedUris(List<Uri> selected) {
+        mediaLoader.setSelectedList(selected);
     }
 }
