@@ -1,10 +1,12 @@
 package com.jackie.gallery.model;
 
 import android.arch.lifecycle.LiveData;
+import android.net.Uri;
 
 import com.jackie.gallery.R;
 import com.madxstudio.libs.BaseApp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -63,5 +65,14 @@ public class GalleryLiveData extends LiveData<List<Bucket>> implements BucketLis
         }
         postValue(bucketList);
         mediaLoader.loadGallery(bucket.getBucket());
+    }
+
+    public List<Uri> getSelected() {
+        List<MediaEntity> selectedList = mediaLoader.getSelectedList();
+        List<Uri> uris = new ArrayList<>(selectedList.size());
+        for (MediaEntity mediaEntity : selectedList) {
+            uris.add(mediaEntity.getContentUri());
+        }
+        return uris;
     }
 }

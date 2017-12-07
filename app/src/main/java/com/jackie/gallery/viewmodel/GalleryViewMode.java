@@ -2,10 +2,13 @@ package com.jackie.gallery.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.jackie.gallery.model.Bucket;
 import com.jackie.gallery.model.GalleryLiveData;
+
+import java.util.List;
 
 /**
  * Created on 05/12/2017.
@@ -27,7 +30,11 @@ public class GalleryViewMode extends AndroidViewModel {
         return liveData;
     }
 
-    public void selectBucket(Bucket bucket) {
+    public void selectBucketGallery(Bucket bucket) {
         liveData.loadBucketGallery(bucket);
+    }
+
+    public List<Uri> getSelected() {
+       return liveData.getSelected();
     }
 }

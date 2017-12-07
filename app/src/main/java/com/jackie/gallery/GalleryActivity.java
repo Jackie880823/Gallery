@@ -2,6 +2,9 @@ package com.jackie.gallery;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.ClipData;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -52,7 +55,6 @@ public class GalleryActivity extends BaseActivity implements BucketSelectListene
 
         final BucketAdapter adapter = new BucketAdapter(this);
         adapter.setSelectListener(this);
-//        adapter.addItem(0, new Bucket(getString(R.string.media_bucket_all), null));
         recyclerView.setAdapter(adapter);
 
         viewMode = ViewModelProviders.of(this).get(GalleryViewMode.class);
@@ -70,6 +72,16 @@ public class GalleryActivity extends BaseActivity implements BucketSelectListene
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if (!viewMode.getSelected().isEmpty()) {
+            Intent intent = new Intent();
+            ClipData clipData = ClipData.newIntent(null, intent);
+            for (Uri uri : viewMode.getSelected()) {
+                ClipData.Item item = new ClipData.Item(uri);
+                clipData.addItem(item);
+            }
+            intent.setClipData(clipData);
+            setResult(RESULT_OK, intent);
+            super.onBackPressed();
         } else {
             super.onBackPressed();
         }
@@ -77,7 +89,7 @@ public class GalleryActivity extends BaseActivity implements BucketSelectListene
 
     @Override
     public void onClick(Bucket bucket) {
-        viewMode.selectBucket(bucket);
+        viewMode.selectBucketGallery(bucket);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
     }
