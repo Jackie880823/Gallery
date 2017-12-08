@@ -12,4 +12,5 @@
 
     <string name="media_bucket_all">All</string>
     <string name="media_bucket_videos">Videos</string>
+    <string name="title_activity_main">MainActivity</string>
 </resources>
