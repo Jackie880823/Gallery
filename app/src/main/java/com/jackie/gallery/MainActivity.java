@@ -2,12 +2,11 @@ package com.jackie.gallery;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import com.madxstudio.libs.tools.gallery.Gallery;
+import com.madxstudio.libs.tools.gallery.GalleryFactory;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,7 +21,8 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Gallery.init().fetch(MainActivity.this, 1000);
+                GalleryFactory.init().limitCount(9).limitFileSize(20 * 1024 * 1024).needVideo(true).fetch(MainActivity.this,
+                        1000);
             }
         });
     }
