@@ -47,10 +47,15 @@ public class MainActivity extends AppCompatActivity {
         }
         switch (requestCode) {
             case REQUEST_GALLERY_CODE:
-                ClipData clipData = data.getClipData();
-                int itemCount = clipData.getItemCount();
-                for (int i = 0; i < itemCount; i++) {
-                    uris.add(clipData.getItemAt(i).getUri());
+                Uri uri = data.getData();
+                if (uri != null) {
+                    uris.add(uri);
+                } else if (data.getClipData() != null){
+                    ClipData clipData = data.getClipData();
+                    int itemCount = clipData.getItemCount();
+                    for (int i = 0; i < itemCount; i++) {
+                        uris.add(clipData.getItemAt(i).getUri());
+                    }
                 }
                 break;
         }
