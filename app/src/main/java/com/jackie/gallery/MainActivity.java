@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                 Uri uri = data.getData();
                 if (uri != null) {
                     uris.add(uri);
-                } else if (data.getClipData() != null){
+                } else if (data.getClipData() != null) {
                     ClipData clipData = data.getClipData();
                     int itemCount = clipData.getItemCount();
                     for (int i = 0; i < itemCount; i++) {
