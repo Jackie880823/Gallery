@@ -23,6 +23,8 @@ android {
             storePassword signature.debug_store_password
         }
         release {
+            v2SigningEnabled false
+            v1SigningEnabled true
             keyAlias signature.release_key_alias
             keyPassword signature.release_key_password
             storeFile file(signature.release_store_file)
@@ -32,8 +34,11 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            useProguard     true
+            shrinkResources true
+            minifyEnabled   true
+            signingConfig   signingConfigs.release
+            proguardFiles   getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
